@@ -8,6 +8,8 @@ from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from rich.console import Console
 from rich.panel import Panel
+import configparser
+import os
 
 console = Console()
 
@@ -23,6 +25,20 @@ def get_model_client_ollama() -> OpenAIChatCompletionClient:  # type: ignore
             "function_calling": True,
         },
     )
+
+def load_config():
+    config = configparser.ConfigParser()
+    
+    # 檢查設定檔是否存在
+    if not os.path.exists('config.ini'):
+        raise FileNotFoundError('請建立 config.ini 檔案（可以從 config.example.ini 複製）')
+    
+    config.read('config.ini')
+    return config
+
+# 讀取設定
+config = load_config()
+API_KEY = config['API']['api_key']
 
 async def main() -> None:
 
