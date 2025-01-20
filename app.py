@@ -6,7 +6,6 @@ from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_ext.models.openai import OpenAIChatCompletionClient
-from google.colab import userdata
 from rich.console import Console
 from rich.panel import Panel
 
