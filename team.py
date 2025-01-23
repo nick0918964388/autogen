@@ -39,7 +39,7 @@ API_KEY = config['API']['api_key_mistral']
 # # ollama本地部署
 def get_model_client_ollama() -> OpenAIChatCompletionClient:  # type: ignore
     return OpenAIChatCompletionClient(
-        model="llama3.3-extra:latest",
+        model="qwen2.5-coder-extra:latest",
         api_key="ollama",
         base_url="http://ollama.webtw.xyz:11434/v1",
         model_capabilities={
