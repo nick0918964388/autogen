@@ -81,7 +81,7 @@ def get_model_client_Mistral() -> OpenAIChatCompletionClient:  # type: ignore
     return OpenAIChatCompletionClient(
         model="mistral-large-latest",
         api_key=API_KEY,
-        base_url="https://api.mistral.ai/",
+        base_url="https://api.mistral.ai/v1",
         model_capabilities={
             "json_output": True,
             "vision": False,
