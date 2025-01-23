@@ -1,14 +1,26 @@
+# 基本套件
 import asyncio
+import os
+import configparser
 
+# AutoGen 相關套件
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.base import TaskResult
-from autogen_agentchat.conditions import ExternalTermination, TextMentionTermination
+from autogen_agentchat.conditions import (
+    ExternalTermination, 
+    TextMentionTermination, 
+    MaxMessageTermination
+)
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.ui import Console
+
+# AutoGen 擴展套件
 from autogen_core import CancellationToken
 from autogen_ext.models.openai import OpenAIChatCompletionClient
-import configparser
-import os
+
+# Rich 套件（如果需要美化輸出）
+from rich.console import Console
+from rich.panel import Panel
 
 def load_config():
     config = configparser.ConfigParser()
@@ -150,9 +162,6 @@ task = """
 5. 编写完整的单元测试
 """
 
-# 在脚本中运行时使用 `asyncio.run(...)`
-result = await team.run(task=task)
-
 def print_formatted_result(task_result):
     print("\n" + "="*60)
     print("代码评审过程".center(60))
@@ -180,4 +189,75 @@ def print_formatted_result(task_result):
     print("="*60)
     print(f"\n{task_result.stop_reason}\n")
 
-print_formatted_result(result)
+async def run_team_chat(task: str):
+    model_client = get_model_client_ollama()
+    
+    agent1 = AssistantAgent("Assistant1", model_client=model_client)
+    agent2 = AssistantAgent("Assistant2", model_client=model_client)
+    
+    termination = MaxMessageTermination(11)
+    team = RoundRobinGroupChat([agent1, agent2], termination_condition=termination)
+    
+    result = await team.run(task=task)
+    return result
+
+async def run_code_review(task: str):
+    # 创建 OpenAI 模型客户端
+    model_client = get_model_client_Mistral()
+
+    # 创建团队成员
+    programmer = AssistantAgent(
+        "programmer",
+        model_client=model_client,
+        system_message="""你是一个专业的Python开发工程师。
+    请基于需求编写清晰、可维护且符合PEP8规范的Python代码。
+    代码要包含:
+    - 清晰的注释和文档字符串
+    - 适当的错误处理
+    - 代码性能优化
+    - 单元测试
+    """,
+    )
+
+    reviewer = AssistantAgent(
+        "code_reviewer",
+        model_client=model_client,
+        system_message="""你是一位资深的代码审查专家。请对代码进行全面的评审,包括:
+    - 代码规范性和可读性
+    - 设计模式的使用
+    - 性能和效率
+    - 安全性考虑
+    - 测试覆盖率
+    - 潜在问题
+    当代码符合要求时,回复'同意通过'。""",
+    )
+
+    # 定义终止条件
+    text_termination = TextMentionTermination("同意通过")
+
+    # 创建团队
+    team = RoundRobinGroupChat([programmer, reviewer], termination_condition=text_termination)
+
+    # 运行任务
+    result = await team.run(task=task)
+    return result
+
+def main():
+    # 示例任务
+    task = """
+    请实现一个文件处理类 FileProcessor,要求:
+    1. 支持读取、写入和追加文本文件
+    2. 包含基本的文件统计功能(行数、字符数、单词数)
+    3. 支持文件加密/解密功能
+    4. 实现异常处理
+    5. 编写完整的单元测试
+    """
+    
+    # 运行代码评审
+    result = asyncio.run(run_code_review(task))
+    
+    # 打印结果
+    print_formatted_result(result)
+
+if __name__ == "__main__":
+    main()

@@ -38,7 +38,7 @@ def load_config():
 
 # 讀取設定
 config = load_config()
-API_KEY = config['API']['api_key']
+API_KEY = config['API']['api_key_mistral']
 
 async def main() -> None:
 
