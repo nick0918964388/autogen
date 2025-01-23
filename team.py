@@ -203,7 +203,7 @@ async def run_team_chat(task: str):
 
 async def run_code_review(task: str):
     # 创建 OpenAI 模型客户端
-    model_client = get_model_client_Mistral()
+    model_client = get_model_client_ollama()
 
     # 创建团队成员
     programmer = AssistantAgent(
