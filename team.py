@@ -190,7 +190,7 @@ def print_formatted_result(task_result):
     print(f"\n{task_result.stop_reason}\n")
 
 async def run_team_chat(task: str):
-    model_client = get_model_client_ollama()
+    model_client = get_model_client_Mistral()
     
     agent1 = AssistantAgent("Assistant1", model_client=model_client)
     agent2 = AssistantAgent("Assistant2", model_client=model_client)
@@ -203,7 +203,7 @@ async def run_team_chat(task: str):
 
 async def run_code_review(task: str):
     # 创建 OpenAI 模型客户端
-    model_client = get_model_client_ollama()
+    model_client = get_model_client_Mistral()
 
     # 创建团队成员
     programmer = AssistantAgent(
